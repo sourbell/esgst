@@ -850,94 +850,128 @@ class Filters extends Module {
 		}
 		if (!Settings.get(`${obj.id}_m_a`)) {
 			const templates = {
-				group: `
-					<div id="{{= it.group_id }}" class="rules-group-container">
+				group: (it) => `
+					<div id="${it.group_id}" class="rules-group-container">
 						<div class="rules-group-header">
 							<span class="esgst-gf-filter-count" title="Number of items this group is hiding">0</span>
 							<div class="btn-group pull-right group-actions">
 								<button type="button" class="btn btn-xs btn-success" data-add="rule">
-									<i class="{{= it.icons.add_rule }}"></i> {{= it.translate("add_rule") }}
+									<i class="${it.icons.add_rule}"></i> ${it.translate('add_rule')}
 								</button>
-							{{? it.settings.allow_groups===-1 || it.settings.allow_groups>=it.level }}
+							${
+								it.settings.allow_groups === -1 || it.settings.allow_groups >= it.level
+									? `
 								<button type="button" class="btn btn-xs btn-success" data-add="group">
-									<i class="{{= it.icons.add_group }}"></i> {{= it.translate("add_group") }}
+									<i class="${it.icons.add_group}"></i> ${it.translate('add_group')}
 								</button>
-							{{?}}
-							{{? it.level>1 }}
+							`
+									: ''
+							}
+							${
+								it.level > 1
+									? `
 								<button type="button" class="btn btn-xs btn-primary" data-pause="group">
-									<i class="{{= it.icons.pause_group }}"></i> {{= it.translate("pause_group") }}
+									<i class="${it.icons.pause_group}"></i> ${it.translate('pause_group')}
 								</button>
 								<button type="button" class="btn btn-xs btn-primary" data-resume="group">
-									<i class="{{= it.icons.resume_group }}"></i> {{= it.translate("resume_group") }}
+									<i class="${it.icons.resume_group}"></i> ${it.translate('resume_group')}
 								</button>
 								<button type="button" class="btn btn-xs btn-danger" data-delete="group">
-									<i class="{{= it.icons.remove_group }}"></i> {{= it.translate("delete_group") }}
+									<i class="${it.icons.remove_group}"></i> ${it.translate('delete_group')}
 								</button>
-							{{?}}
+							`
+									: ''
+							}
 							</div>
 							<div class="btn-group group-conditions">
-							{{~ it.conditions: condition }}
+							${it.conditions
+								.map(
+									(condition) => `
 								<label class="btn btn-xs btn-default">
-									<input type="radio" name="{{= it.group_id }}_cond" value="{{= condition }}"> {{= it.translate("conditions", condition) }}
+									<input type="radio" name="${it.group_id}_cond" value="${condition}"> ${it.translate(
+										'conditions',
+										condition
+									)}
 								</label>
-							{{~}}
+							`
+								)
+								.join('')}
 							</div>
-						{{? it.settings.display_errors }}
+						${
+							it.settings.display_errors
+								? `
 							<div class="error-container">
-								<i class="{{= it.icons.error }}"></i>
+								<i class="${it.icons.error}"></i>
 							</div>
-						{{?}}
+						`
+								: ''
+						}
 						</div>
 						<div class="rules-group-body">
 							<div class="rules-list"></div>
 						</div>
 					</div>
 				`,
-				rule: `
-					<div id="{{= it.rule_id }}" class="rule-container">
+				rule: (it) => `
+					<div id="${it.rule_id}" class="rule-container">
 						<div class="rule-header">
 							<div class="btn-group pull-right rule-actions">
 								<button type="button" class="btn btn-xs btn-primary" data-pause="rule">
-									<i class="{{= it.icons.pause_rule }}"></i> {{= it.translate("pause_rule") }}
+									<i class="${it.icons.pause_rule}"></i> ${it.translate('pause_rule')}
 								</button>
 								<button type="button" class="btn btn-xs btn-primary" data-resume="rule">
-									<i class="{{= it.icons.resume_rule }}"></i> {{= it.translate("resume_rule") }}
+									<i class="${it.icons.resume_rule}"></i> ${it.translate('resume_rule')}
 								</button>
 								<button type="button" class="btn btn-xs btn-danger" data-delete="rule">
-									<i class="{{= it.icons.remove_rule }}"></i> {{= it.translate("delete_rule") }}
+									<i class="${it.icons.remove_rule}"></i> ${it.translate('delete_rule')}
 								</button>
 							</div>
 						</div>
-					{{? it.settings.display_errors }}
+					${
+						it.settings.display_errors
+							? `
 						<div class="error-container">
-							<i class="{{= it.icons.error }}"></i>
+							<i class="${it.icons.error}"></i>
 						</div>
-					{{?}}
+					`
+							: ''
+					}
 						<span class="esgst-gf-filter-count" title="Number of items this rule is hiding">0</span>
 						<div class="rule-filter-container"></div>
 						<div class="rule-operator-container"></div>
 						<div class="rule-value-container"></div>
 					</div>
 				`,
-				filterSelect: `
-					{{ var optgroup = null; }}
-					<select class="form-control" name="{{= it.rule.id }}_filter">
-					{{? it.settings.display_empty_filter }}
-						<option value="-1">{{= it.settings.select_placeholder }}</option>
-					{{?}}
-					{{~ it.filters: filter }}
-						{{ var className = filter.data.check ? '' : 'class="esgst-hidden"'; }}
-						{{? optgroup !== filter.optgroup }}
-							{{? optgroup !== null }}</optgroup>{{?}}
-							{{? (optgroup = filter.optgroup) !== null }}
-								<optgroup label="{{= it.translate(it.settings.optgroups[optgroup]) }}">
-							{{?}}
-						{{?}}
-						<option {{= className }} value="{{= filter.id }}" {{? filter.icon}}data-icon="{{= filter.icon}}"{{?}}>{{= it.translate(filter.label) }}</option>
-					{{~}}
-					{{? optgroup !== null }}</optgroup>{{?}}
-					</select>
-				`,
+				filterSelect: (it) => {
+					const select = <select className="form-control" name={`${it.rule.id}_filter`}></select>;
+					if (it.settings.display_empty_filter) {
+						select.appendChild(<option value="-1">{it.settings.select_placeholder}</option>);
+					}
+					let optgroup = null;
+					let container = select;
+					for (const filter of it.filters) {
+						if (optgroup !== filter.optgroup) {
+							optgroup = filter.optgroup;
+							container = select;
+							if (optgroup !== null) {
+								container = (
+									<optgroup label={it.translate(it.settings.optgroups[optgroup])}></optgroup>
+								);
+								select.appendChild(container);
+							}
+						}
+						container.appendChild(
+							<option
+								className={filter.data.check ? null : 'esgst-hidden'}
+								value={filter.id}
+								data-icon={filter.icon || null}
+							>
+								{it.translate(filter.label)}
+							</option>
+						);
+					}
+					return select.outerHTML;
+				},
 			};
 			const options = {
 				filters: filters,

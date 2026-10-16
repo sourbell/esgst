@@ -7,6 +7,7 @@ on:
 
 jobs:
   beta:
+    if: github.repository == 'rafaelgomesxyz/esgst'
     name: Build, test and release
     runs-on: ubuntu-latest
     steps:

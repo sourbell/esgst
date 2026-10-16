@@ -2,6 +2,23 @@
 
 An extension / userscript that adds some cool features to SteamGifts and SteamTrades.
 
+This fork fixes userscript startup on SteamGifts pages that disallow `eval` through
+Content Security Policy. Install the [fixed userscript](https://github.com/sourbell/esgst/releases/latest/download/userscript.user.js)
+over the existing ESGST script to retain its settings. Its name and namespace are unchanged;
+future userscript updates come from this fork. The extension store links below refer to upstream builds.
+
+To build this legacy project, use Node 16 and pnpm 6:
+
+```sh
+pnpm install --frozen-lockfile --ignore-scripts
+pnpm run build-userscript
+pnpm exec cross-env NODE_ENV=test karma start --browsers ChromeHeadless --log-level info
+```
+
+`--ignore-scripts` skips the obsolete bundled Node 12 installer, which has no Apple Silicon build.
+The installable script is `dist/userscript.user.js`. Fork releases attach it alongside
+`dist/userscript.meta.js`; the upstream-only release workflows are disabled for forks.
+
 If you find any bugs or have any feature requests, please file an issue [here](https://github.com/rafaelgomesxyz/esgst/issues).
 
 ---
@@ -47,7 +64,7 @@ You can also use the extension on Android through Firefox for Android, but some 
 
 ### Option 2 - Userscript
 
-To install the userscript, you must install [Tampermonkey](https://tampermonkey.net/), [Greasemonkey](http://www.greasespot.net/) or some other userscript manager first. Then [click here](https://github.com/rafaelgomesxyz/esgst/releases/latest/download/userscript.user.js) and you should be prompted to install it. I recommend Tampermonkey, because the userscript uses the GM_addValueChangeListener API to communicate changes in the storage between tabs, and that API is not available on Greasemonkey, so a polyfill is used for Greasemonkey, which is not very effective and can affect the performance.
+To install the userscript, you must install [Tampermonkey](https://tampermonkey.net/), [Greasemonkey](http://www.greasespot.net/) or some other userscript manager first. Then [click here](https://github.com/sourbell/esgst/releases/latest/download/userscript.user.js) and you should be prompted to install it. I recommend Tampermonkey, because the userscript uses the GM_addValueChangeListener API to communicate changes in the storage between tabs, and that API is not available on Greasemonkey, so a polyfill is used for Greasemonkey, which is not very effective and can affect the performance.
 
 You can also use the userscript on Android through Firefox with Violentmonkey or USI, but some features might not work or not be optimized enough for mobile.
 

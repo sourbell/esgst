@@ -9,7 +9,19 @@ module.exports = (config) => {
 		autoWatch: false,
 		browsers,
 		concurrency: 1,
-		files: ['test/**/*.+(js|jsx|ts|tsx)'],
+		files: [
+			'node_modules/jquery/dist/jquery.js',
+			'node_modules/interactjs/dist/interact.js',
+			'node_modules/jQuery-QueryBuilder/dist/js/query-builder.standalone.js',
+			'test/**/*.+(js|jsx|ts|tsx)',
+		],
+		customHeaders: [
+			{
+				match: '.*',
+				name: 'Content-Security-Policy',
+				value: "script-src 'self' 'unsafe-inline'",
+			},
+		],
 		frameworks: ['mocha', 'chai'],
 		logLevel: config.LOG_DISABLE,
 		plugins: [
@@ -26,7 +38,7 @@ module.exports = (config) => {
 		},
 		reporters: ['mocha', 'coverage'],
 		singleRun: true,
-		webpack: webpackConfig({ development: true, test: true }),
+		webpack: webpackConfig[0]({ development: true, test: true }),
 		webpackMiddleware: {
 			logLevel: 'silent',
 		},

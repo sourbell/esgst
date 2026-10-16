@@ -1,7 +1,15 @@
 {
 	"env": {
 		"test": {
-			"plugins": ["istanbul"]
+			"plugins": [
+				[
+					"istanbul",
+					{
+						"coverageGlobalScope": "window",
+						"coverageGlobalScopeFunc": false
+					}
+				]
+			]
 		}
 	},
 	"plugins": [
